@@ -28,8 +28,8 @@ except ModuleNotFoundError:
 
 class MatrixGUI:
 
-    def __init__(self):
-        self.root = Tk()
+    def __init__(self, master):
+        self.root = master
         self.root.title("Matrix Calculator GUI")
 
         self.root.minsize(500, 530)
@@ -490,4 +490,6 @@ class MatrixGUI:
 
 
 if __name__ == '__main__':
-    MatrixGUI().start()
+    root = Tk()
+    app = MatrixGUI(root)
+    app.start()
