@@ -13,44 +13,60 @@ class Matrix:
 
     Example
     ---------
-    >>> matrix = [[1, 2, 3], [4, 5, 6]]
-    >>> matrix = Matrix(matrix)
-    >>> matrix
+    >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+    >>> _matrix = Matrix(_matrix)
+    >>> _matrix
     [[1, 2, 3], [4, 5, 6]]
-    >>> matrix.row
+    >>> _matrix.row
     2
-    >>> matrix.column
+    >>> _matrix.column
     3
-    >>> matrix.order
+    >>> _matrix.order
     '2x3'
     """
 
     def __init__(
             self,
             matrix: list[list[int | float]]
-    ):
+    ) -> None:
         """
         Initializes the matrix object
         """
         self.matrix = matrix
         self.row = len(matrix)
-
-        for i in self.matrix:
-            _col = len(self.matrix[0])
-            col = len(i)
-            if col != _col:
-                raise Exception('Not a valid matrix, inconsistent columns')
-
-        self.column = len(self.matrix[0])
+        self.column = len(matrix[0])
         self.order = f'{self.row}x{self.column}'
 
-    def __repr__(self):
-        """ Nothing fancy here! """
+    @property
+    def matrix(self):
+        return self._matrix
+    
+    @matrix.setter
+    def matrix(self, _matrix):
+        """
+        This is going to do two checks
+        1. if matrix contains anything other than int/floats
+        2. if the matrix is consistent i.e it can't be represented as nxm
+        """
+
+        for i in _matrix:
+            for j in i:
+                if not isinstance(j, int | float):
+                    raise ValueError('Unsupported type, use only int/float')
+       
+        _col = len(_matrix[0])
+        for i in _matrix:
+            if _col != len(i):
+                raise ValueError('Inconsistent columns!')
+        self._matrix = _matrix
+    
+    def __repr__(self) -> str:
+        """ String Instance """
         return str(self.matrix)
 
     def __add__(self, matrix: Matrix) -> Matrix:
         """
-        Adds two matrix objects
+        Adds two _matrix objects
 
         Parameters
         ----------
@@ -62,24 +78,21 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6]]
-        >>> matrix = Matrix(matrix)
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
         >>> matrix1 = [[1, 2, 3], [4, 5, 6]]
         >>> matrix1 = Matrix(matrix1)
-        >>> matrix + matrix1
+        >>> _matrix + matrix1
         [[2, 4, 6], [8, 10, 12]]
 
         """
         if self.order != matrix.order:
-            raise Exception(f'Expected order {self.order} got {matrix.order}')
+            raise ValueError(f'Expected order {self.order} got {matrix.order}')
         else:
-            new_matrix = []
-            for i in range(self.row):
-                _col = []
-                for j in range(self.column):
-                    _col.append(self.matrix[i][j] + matrix.matrix[i][j])
-                new_matrix.append(_col)
-            return Matrix(new_matrix)
+            return Matrix([
+                [matrix.matrix[i][j] + self.matrix[i][j] for j in range(self.column)]
+                for i in range(self.row)
+            ])
 
     def __sub__(self, matrix: Matrix) -> Matrix:
         """
@@ -95,24 +108,21 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6]]
-        >>> matrix = Matrix(matrix)
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
         >>> matrix1 = [[1, 2, 3], [4, 5, 6]]
         >>> matrix1 = Matrix(matrix1)
-        >>> matrix - matrix1
+        >>> _matrix - matrix1
         [[0, 0, 0], [0, 0, 0]]
 
         """
         if self.order != matrix.order:
-            raise Exception(f'Expected order {self.order} for {matrix.order}')
+            raise ValueError(f'Expected order {self.order} for {matrix.order}')
         else:
-            new_matrix = []
-            for i in range(self.row):
-                _col = []
-                for j in range(self.column):
-                    _col.append(self.matrix[i][j] - matrix.matrix[i][j])
-                new_matrix.append(_col)
-            return Matrix(new_matrix)
+            return Matrix([
+                [matrix.matrix[i][j] - self.matrix[i][j] for j in range(self.column)]
+                for i in range(self.row)
+            ])
 
     def __mul__(self, matrix: Matrix) -> Matrix:
         """
@@ -128,20 +138,19 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-        >>> matrix = Matrix(matrix)
+        >>> _matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        >>> _matrix = Matrix(_matrix)
         >>> matrix1 = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
         >>> matrix1 = Matrix(matrix1)
-        >>> matrix * matrix1
+        >>> _matrix * matrix1
         [[30, 36, 42], [66, 81, 96], [102, 126, 150]]
 
         """
         if self.order[2] != matrix.order[0]:
-            raise Exception(f'Cannot multiply these matrices!')
+            raise ValueError(f'Cannot multiply these matrices!')
         else:
             new_matrix = [[0 for _ in range(matrix.column)] for _ in range(self.row)]
             for i in range(self.row):
-                _col = []
                 for j in range(matrix.column):
                     for k in range(matrix.row):
                         new_matrix[i][j] += self.matrix[i][k] * matrix.matrix[k][j]
@@ -153,7 +162,7 @@ class Matrix:
 
         Parameters
         ----------
-        None
+        self
 
         Returns
         -------
@@ -161,9 +170,9 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6]]
-        >>> matrix = Matrix(matrix)
-        >>> len(matrix)
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
+        >>> len(_matrix)
         6
         """
         return self.row * self.column
@@ -174,7 +183,7 @@ class Matrix:
 
         Parameters
         ----------
-        None
+        self
 
         Returns
         -------
@@ -182,16 +191,16 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6]]
-        >>> matrix = Matrix(matrix)
-        >>> print(*matrix)
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
+        >>> print(*_matrix)
         [1, 2, 3] [4, 5, 6]
 
         """
         for i in self.matrix:
             yield i
 
-    def __getitem__(self, index: int) -> list | int:
+    def __getitem__(self, index: int) -> list | int | float:
         """
         Returns a row of the matrix
 
@@ -201,20 +210,72 @@ class Matrix:
 
         Returns
         -------
-        list
+        list | int | float
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6]]
-        >>> matrix = Matrix(matrix)
-        >>> matrix[0]
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
+        >>> _matrix[0]
         [1, 2, 3]
 
         """
         return self.matrix[index]
 
+    def __contains__(self, elem: int | float) -> bool:
+        """
+        Checks if element is in the matrix.
+
+        Parameters
+        ----------
+        elem : int | float
+
+        Returns
+        -------
+        bool
+
+        Example
+        -------
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
+        >>> 1 in _matrix
+        True
+        """
+        for i in self.matrix:
+            if elem in i:
+                return True
+        return False
+
+    def __eq__(self, matrix: Matrix) -> bool:
+        """
+        Checks if two matrices are equal
+
+        Parameters
+        ----------
+        matrix : Matrix object
+
+        Returns
+        -------
+        bool
+
+        Example
+        -------
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
+        >>> matrix1 = [[1, 2, 3], [4, 5, 6]]
+        >>> matrix1 = Matrix(matrix1)
+        >>> _matrix == matrix1
+        True
+
+        """
+        if self.order != matrix.order:
+            return False
+        else:
+            return self.matrix == matrix.matrix
+
+    @staticmethod
     def _el_items(
-            self, row: int, column: int,
+            row: int, column: int,
             matrix: list[list[int | float]]
     ) -> list[list[int | float]]:
 
@@ -228,7 +289,7 @@ class Matrix:
 
         Parameters
         ----------
-        None
+        self
 
         Returns
         -------
@@ -236,13 +297,13 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-        >>> matrix = Matrix(matrix)
-        >>> matrix.determinant()
+        >>> _matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        >>> _matrix = Matrix(_matrix)
+        >>> _matrix.determinant()
         0
         """
         if self.row != self.column:
-            raise Exception('Cannot get determinant of this matrix! Must be a square Matrix')
+            raise ValueError('Cannot get determinant of this matrix! Must be a square Matrix')
         else:
             def det(matrix):
                 row = len(matrix)
@@ -255,7 +316,7 @@ class Matrix:
                 elif (row, col) == (2, 2):
                     return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
 
-                # using sarrus method to solve for 3x3, its a little faster.
+                # using sarrus method to solve for 3x3, it's a little faster.
                 elif (row, col) == (3, 3):
                     matrix1 = matrix[:]
 
@@ -299,7 +360,6 @@ class Matrix:
 
             return det(self.matrix)
 
-
     def count(self, element: int = None) -> dict[int | float, int]:
         """
         Counts occurences of elements
@@ -314,11 +374,11 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6]]
-        >>> matrix = Matrix(matrix)
-        >>> matrix.count()
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
+        >>> _matrix.count()
         {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1}
-        >>> matrix.count(2)
+        >>> _matrix.count(2)
         {2: 1}
         """
         if element is not None:
@@ -344,7 +404,7 @@ class Matrix:
 
         Parameters
         ----------
-        None
+        self
 
         Returns
         -------
@@ -352,9 +412,9 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6]]
-        >>> matrix = Matrix(matrix)
-        >>> matrix.transpose()
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
+        >>> _matrix.transpose()
         [[1, 4], [2, 5], [3, 6]]
 
         """
@@ -364,7 +424,6 @@ class Matrix:
                 new_matrix[j][i] += self.matrix[i][j]
 
         return Matrix(new_matrix)
-
 
     def randomize(self, low: int = 0, high: int = 100) -> Matrix:
         """
@@ -381,11 +440,11 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6]]
-        >>> matrix = Matrix(matrix)
-        >>> matrix.randomize()
+        >>> _matrix = [[1, 2, 3], [4, 5, 6]]
+        >>> _matrix = Matrix(_matrix)
+        >>> _matrix.randomize()
         [[23, 35, 35], [2, 28, 86]]
-        >>> matrix.randomize(low=0, high=10)
+        >>> _matrix.randomize(low=0, high=10)
         [[9, 5, 6], [7, 10, 9]]
 
         """
@@ -398,7 +457,7 @@ class Matrix:
 
         Parameters
         ----------
-        None
+        self
 
         Returns
         -------
@@ -406,15 +465,15 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-        >>> matrix = Matrix(matrix)
-        >>> matrix.adjoint()
+        >>> _matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        >>> _matrix = Matrix(_matrix)
+        >>> _matrix.adjoint()
         [[-3, 6, -3], [6, -12, 6], [-3, 6, -3]]
 
         """
 
         if self.row != self.column:
-            raise Exception('Cannot get adj of this matrix! Must be a square Matrix')
+            raise ValueError('Cannot get adj of this matrix! Must be a square Matrix')
         else:
             def adj(matrix):
                 row = len(matrix)
@@ -447,7 +506,7 @@ class Matrix:
 
         Parameters
         ----------
-        None
+        self
 
         Returns
         -------
@@ -455,22 +514,19 @@ class Matrix:
 
         Example
         -------
-        >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-        >>> matrix = Matrix(matrix)
-        >>> matrix.inverse()
-        'Cannot get inverse of this matrix! Determinant is 0'
-        >>> matrix = [[1, 2, 3], [6, 6, 6], [7, 7, 9]]
-        >>> matrix = Matrix(matrix)
-        >>> matrix.inverse()
+        >>> _matrix = [[1, 2, 3], [6, 6, 6], [7, 7, 9]]
+        >>> _matrix = Matrix(_matrix)
+        >>> _matrix.inverse()
         [[-1.0, -0.25, 0.5], [1.0, 1.0, -1.0], [0.0, -0.5833, 0.5]]
 
         """
         if self.row != self.column:
-            raise Exception('Cannot get inverse of this matrix! Must be a square Matrix')
+            raise ValueError('Cannot get inverse of this matrix! Must be a square Matrix')
         else:
             det = self.determinant()
             if det == 0:
-                return 'Cannot get inverse of this matrix! Determinant is 0'
+                raise ValueError('Cannot determine inverse, determine is 0')
+                
             adj = list(self.adjoint())
             inverse_matrix = [[0 for _ in range(self.row)] for _ in range(self.column)]
             for i in range(self.row):
@@ -479,5 +535,24 @@ class Matrix:
 
             return Matrix(inverse_matrix)
 
-if __name__ == '__main__':
-    pass
+    def symmetric(self, matrix: Matrix) -> bool:
+        """
+        Parameters
+        ----------
+        Matrix object
+
+        Returns
+        -------
+        bool
+
+        Examples
+        -------
+        >>> _matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        >>> _matrix = Matrix(_matrix)
+        >>> matrix1 = [[1, 4, 7], [2, 5, 8], [3, 6, 9]]
+        >>> matrix1 = Matrix(matrix1)
+        >>> _matrix.symmetric(matrix1)
+        True
+
+        """
+        return self.transpose() == matrix
